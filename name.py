@@ -1,7 +1,9 @@
 from pathlib import Path
 
 basePath = 'D:\다운로드'
-path = Path(basePath + '\개인 노션 저장\Export-81def9fc-5a3a-43e1-865e-575589bfac08-Part-1\\testFolder')
+# addPath = '/노션 아묻따'
+addPath = '\개인 노션 저장\\1\\testFolder'
+path = Path(basePath + addPath)
 
 #! 파일 뒤에 붙는 랜덤글은 32 혹은 36글자가 전부이다.
 #todo 파일 뒤 붙는 notionId가 36글자일 경우 파일명 뒤에 _all이 붙는다.
@@ -11,11 +13,11 @@ path = Path(basePath + '\개인 노션 저장\Export-81def9fc-5a3a-43e1-865e-575
 def dirOrFile (paramPath):
   result = None
   if paramPath.is_dir():
-    print(f"{paramPath}는 디렉토리입니다.")
+    # print(f"{paramPath}는 디렉토리입니다.")
     result = 'dir'
   elif paramPath.is_file():
     result = 'file'
-    print(f"{paramPath}는 파일입니다.")
+    # print(f"{paramPath}는 파일입니다.")
   else:
     print("파일이나 폴더가 아닙니다.")
   return result
@@ -34,31 +36,49 @@ def directoryInName(paramPath):
 def fileReName(paramPath):
   extension = paramPath.suffix
   fileName = ''
+  innerPath = ''
   if(extension == ''): 
     fileName = paramPath.name.split()
   else: 
     fileName = paramPath.name[:-extension.__len__()].split()
 
   innerFileName = ''
+  innerAllStr = False
+  booleanFileLength = False
   if(fileName.__len__() > 1):
     fileLen = fileName[-1].__len__()
+    booleanFileLength = True
     if(fileLen == 32):
       fileName.pop()
     elif(fileLen == 36):
       innerFileName = fileName.pop()
-    innerFileName = ' '.join(map(str, fileName)) + '_all' + extension
+      innerAllStr = True
+    if(innerAllStr == True):
+      innerFileName = ' '.join(map(str, fileName)) + '_all' + extension
+    else:
+      innerFileName = ' '.join(map(str, fileName)) + extension
+
   else:
+    booleanFileLength = False
     innerFileName = fileName[0]
-  innerPath = paramPath.parent / innerFileName
+  if(paramPath.parent / innerFileName).suffix:
+    innerPath = paramPath.parent / innerFileName
+  elif not((paramPath.parent / innerFileName).suffix) and extension != '':
+    innerPath = paramPath.parent / (innerFileName + extension)
+  else: 
+    innerPath = paramPath.parent / innerFileName
   try:
-    if(paramPath != innerPath):
+    if(paramPath.exists() == True and innerPath.exists() == False):
       paramPath.rename(innerPath)
+    elif((paramPath.exists() == True and innerPath.exists() == True) and (paramPath == innerPath)):
+      return
+    elif(booleanFileLength):
+      errorFileReName(paramPath)
   except Exception as error:
     print('동일한 이름이 존재합니다.')
     print(error)
-    fileReName(errorFileReName(paramPath))
 
-#* 파일 이름 변경
+#* 파일, 폴더 구분시켜서 이름 변경하는 함수로 보내기
 def remake_file_and_dir(paramPath):
   innerFileName = [];
   innerPath = paramPath
@@ -94,8 +114,8 @@ def errorFileReName (paramPath):
         nameSplit.append(notionIds)
     else:
       nameSplit.append('(2)')
-      if(notionIds):
-        nameSplit.append(notionIds)
+      # if(notionIds):
+      #   nameSplit.append(notionIds)
   else:
     if ('(' in notionIds and ')' in notionIds):
       dupliNumbering = int(notionIds.replace('(', "").replace(')',""))
@@ -108,20 +128,28 @@ def errorFileReName (paramPath):
       nameSplit.append('(2)')
   
   result = paramPath.parent / f'{" ".join(nameSplit)}{extension}'
+  pathLength = len(str(result));
   try:
-    if(paramPath.exists() == True and result.exists() == False):
-      paramPath.rename(result)
-    else:
-      if paramPath.exists() == False :
-        print('기존 파일경로의 파일이 존재하지 않습니다.')
-      elif result.exists() == True:
-        print('새 파일이름이 존재합니다.')
+    if(pathLength <= 260):
+      if(paramPath.exists() == True and result.exists() == False):
+        paramPath.rename(result)
       else:
-        raise ValueError("알수없는 에러가 발생했습니다.")
+        if paramPath.exists() == False :
+          print('기존 파일경로의 파일이 존재하지 않습니다.')
+        elif result.exists() == True:
+          print('새 파일이름이 존재합니다.')
+        else:
+          raise ValueError("알수없는 에러가 발생했습니다.")
+    else:
+      print('파일 경로가 260글자가 넘었습니다.', result)
+      return;
   except Exception as error:
     print('동일한 이름이 존재합니다.')
     print(error)
 
   return result
 
-remake_file_and_dir(path)
+try:
+  remake_file_and_dir(path)
+except Exception as error:
+  print(error)
