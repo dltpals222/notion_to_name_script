@@ -114,8 +114,7 @@ def errorFileReName (paramPath):
         nameSplit.append(notionIds)
     else:
       nameSplit.append('(2)')
-      # if(notionIds):
-      #   nameSplit.append(notionIds)
+
   else:
     if ('(' in notionIds and ')' in notionIds):
       dupliNumbering = int(notionIds.replace('(', "").replace(')',""))
