@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 
 basePath = 'C:\\Users\\lw\\Downloads'
 # addPath = '/노션 아묻따'
@@ -11,6 +12,8 @@ path = Path(basePath + addPath)
 #todo 이름이 중복이 될 경우 뒤에 (2)같이 괄호 숫자가 붙는다. 
 
 is_renamed = False
+# 최대 재귀 깊이를 2000으로 설정
+sys.setrecursionlimit(2000)
 
 #* 파일인지 폴더인지 확인하는 함수
 def dirOrFile (paramPath):
