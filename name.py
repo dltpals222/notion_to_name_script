@@ -1,13 +1,16 @@
 from pathlib import Path
 
-basePath = 'D:\다운로드'
+basePath = 'C:\\Users\\lw\\Downloads'
 # addPath = '/노션 아묻따'
-addPath = '\개인 노션 저장\\1\\testFolder'
+# addPath = '\개인 노션 저장\\1\\testFolder'
+addPath = '\\노션_export\\Export'
 path = Path(basePath + addPath)
 
 #! 파일 뒤에 붙는 랜덤글은 32 혹은 36글자가 전부이다.
 #todo 파일 뒤 붙는 notionId가 36글자일 경우 파일명 뒤에 _all이 붙는다.
 #todo 이름이 중복이 될 경우 뒤에 (2)같이 괄호 숫자가 붙는다. 
+
+is_renamed = False
 
 #* 파일인지 폴더인지 확인하는 함수
 def dirOrFile (paramPath):
@@ -70,6 +73,8 @@ def fileReName(paramPath):
   try:
     if(paramPath.exists() == True and innerPath.exists() == False):
       paramPath.rename(innerPath)
+      global is_renamed
+      is_renamed = True
     elif((paramPath.exists() == True and innerPath.exists() == True) and (paramPath == innerPath)):
       return
     elif(booleanFileLength):
@@ -132,6 +137,8 @@ def errorFileReName (paramPath):
     if(pathLength <= 260):
       if(paramPath.exists() == True and result.exists() == False):
         paramPath.rename(result)
+        global is_renamed
+        is_renamed = True
       else:
         if paramPath.exists() == False :
           print('기존 파일경로의 파일이 존재하지 않습니다.')
@@ -148,7 +155,18 @@ def errorFileReName (paramPath):
 
   return result
 
-try:
-  remake_file_and_dir(path)
-except Exception as error:
-  print(error)
+#! 윈도우 기본 경로 길이가 260글자가 한계이므로 재귀함수처리하여 해결
+def start_rename_dir_file (paramPath):
+  global is_renamed
+  is_renamed = False
+  try:
+    remake_file_and_dir(paramPath)
+    if(not is_renamed):
+      print('작업이 완료되었습니다.')
+      return;
+    else:
+      start_rename_dir_file(paramPath)
+  except Exception as error:
+    print(error)
+
+start_rename_dir_file(path)
