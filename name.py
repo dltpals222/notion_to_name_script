@@ -109,7 +109,7 @@ def checkNumbering (paramPath):
     nameSplit = paramPath.name.split()
     if(extension != ''):
       nameSplit[-1] = nameSplit[-1].split('.')[0]
-    
+      nameSplit[-1]
     print("해치웠나?")
 
 
