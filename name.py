@@ -1,11 +1,14 @@
 from pathlib import Path
+import shutil
 import sys
 
+exceptionPathName = '\\exception'
 basePath = 'C:\\Users\\lw\\Downloads'
 # addPath = '/노션 아묻따'
 # addPath = '\개인 노션 저장\\1\\testFolder'
 addPath = '\\노션_export\\Export'
 path = Path(basePath + addPath)
+
 
 #! 파일 뒤에 붙는 랜덤글은 32 혹은 36글자가 전부이다.
 #todo 파일 뒤 붙는 notionId가 36글자일 경우 파일명 뒤에 _all이 붙는다.
@@ -13,19 +16,18 @@ path = Path(basePath + addPath)
 
 is_renamed = False
 # 최대 재귀 깊이를 2000으로 설정
-sys.setrecursionlimit(2000)
+sys.setrecursionlimit(10000)
 
 #* 파일인지 폴더인지 확인하는 함수
 def dirOrFile (paramPath):
   result = None
   if paramPath.is_dir():
-    # print(f"{paramPath}는 디렉토리입니다.")
     result = 'dir'
   elif paramPath.is_file():
     result = 'file'
-    # print(f"{paramPath}는 파일입니다.")
   else:
-    print("파일이나 폴더가 아닙니다.")
+    fileOrDirectoryElse(paramPath)
+    # print(f"{paramPath}의 경로 및 파일의 글자 제한이 260이 넘습니다.")
   return result
 
 #* 하위 폴더 및 파일의 이름을 찾음
@@ -99,8 +101,19 @@ def remake_file_and_dir(paramPath):
     fileReName(innerPath)
     return
   
+
+def checkNumbering (paramPath):
+  while innerPath.exists():
+    innerPath = paramPath
+    extension = paramPath.suffix
+    nameSplit = paramPath.name.split()
+    if(extension != ''):
+      nameSplit[-1] = nameSplit[-1].split('.')[0]
+    
+    print("해치웠나?")
+
+
 #! 동일한 이름이 있을 경우의 함수(예외처리 함수)
-reErrorPath = ''
 def errorFileReName (paramPath):
   extension = paramPath.suffix
   nameSplit = paramPath.name.split()
@@ -135,6 +148,8 @@ def errorFileReName (paramPath):
       nameSplit.append('(2)')
   
   result = paramPath.parent / f'{" ".join(nameSplit)}{extension}'
+  checkNumbering(result);
+    
   pathLength = len(str(result));
   try:
     if(pathLength <= 260):
@@ -144,9 +159,9 @@ def errorFileReName (paramPath):
         is_renamed = True
       else:
         if paramPath.exists() == False :
-          print('기존 파일경로의 파일이 존재하지 않습니다.')
+          print(f'{paramPath}(은)는 기존 파일경로의 파일이 존재하지 않습니다.')
         elif result.exists() == True:
-          print('새 파일이름이 존재합니다.')
+          print(f'{paramPath}의 새 파일이름이 존재합니다.')
         else:
           raise ValueError("알수없는 에러가 발생했습니다.")
     else:
@@ -158,7 +173,22 @@ def errorFileReName (paramPath):
 
   return result
 
-#! 윈도우 기본 경로 길이가 260글자가 한계이므로 재귀함수처리하여 해결
+# 경로 및 파일의 길이가 윈도우 기본제한인 260글자가 넘을 경우 처리하는 함수
+# 해당 함수는 다른곳으로 파일을 옮겨서 생성한 후 다시 옮기는 걸로 처리
+def fileOrDirectoryElse (paramPath):
+  innerParamPath = paramPath 
+  try:
+    
+    innerParamPath 
+  except Exception as error:
+    print(error)
+  if len(str(paramPath)) >= 260:
+    # 사무실에서는 늘려놈
+    print(f"{paramPath}의 경로 및 파일의 글자 제한이 260이 넘습니다.")
+  else:
+    print(f"{paramPath}가 디렉토리나 파일이 아닙니다.")
+
+#! 윈도우 기본 경로 길이가 260글자가 한계이므로 재귀함수로 처리하여 해결
 def start_rename_dir_file (paramPath):
   global is_renamed
   is_renamed = False
