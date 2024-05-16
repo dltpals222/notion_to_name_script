@@ -2,11 +2,12 @@ from pathlib import Path
 import shutil
 import sys
 
-exceptionPathName = '\\exception'
-basePath = 'C:\\Users\\lw\\Downloads'
+# exceptionPathName = '\\exception'
+# basePath = 'C:\\Users\\lw\\Downloads'
+basePath = 'D:\\다운로드'
 # addPath = '/노션 아묻따'
 # addPath = '\개인 노션 저장\\1\\testFolder'
-addPath = '\\노션_export\\Export'
+addPath = '\\노션 자료\\Export'
 path = Path(basePath + addPath)
 
 
@@ -15,7 +16,7 @@ path = Path(basePath + addPath)
 #todo 이름이 중복이 될 경우 뒤에 (2)같이 괄호 숫자가 붙는다. 
 
 is_renamed = False
-# 최대 재귀 깊이를 2000으로 설정
+# 최대 재귀 깊이를 10000으로 설정
 sys.setrecursionlimit(10000)
 
 #* 파일인지 폴더인지 확인하는 함수
@@ -85,7 +86,7 @@ def fileReName(paramPath):
     elif(booleanFileLength):
       errorFileReName(paramPath)
   except Exception as error:
-    print('동일한 이름이 존재합니다.')
+    print('fileReName_동일한 이름이 존재합니다.')
     print(error)
 
 #* 파일, 폴더 구분시켜서 이름 변경하는 함수로 보내기
@@ -103,14 +104,20 @@ def remake_file_and_dir(paramPath):
   
 
 def checkNumbering (paramPath):
+  innerPath = paramPath
   while innerPath.exists():
-    innerPath = paramPath
-    extension = paramPath.suffix
-    nameSplit = paramPath.name.split()
+    extension = innerPath.suffix
+    nameSplit = innerPath.name.split()
     if(extension != ''):
       nameSplit[-1] = nameSplit[-1].split('.')[0]
-      nameSplit[-1]
-    print("해치웠나?")
+      nameSplit[-1] = nameSplit[-1][0] + str(int(nameSplit[-1][1:-1]) +1) + nameSplit[-1][-1]
+      checkName = ' '.join(nameSplit) + extension
+      checkName = paramPath.parent / checkName
+      if(checkName.exists()):
+        checkNumbering(checkName)
+      else:
+        return checkName
+  return innerPath
 
 
 #! 동일한 이름이 있을 경우의 함수(예외처리 함수)
@@ -148,7 +155,7 @@ def errorFileReName (paramPath):
       nameSplit.append('(2)')
   
   result = paramPath.parent / f'{" ".join(nameSplit)}{extension}'
-  checkNumbering(result);
+  result = checkNumbering(result);
     
   pathLength = len(str(result));
   try:
@@ -168,7 +175,7 @@ def errorFileReName (paramPath):
       print('파일 경로가 260글자가 넘었습니다.', result)
       return;
   except Exception as error:
-    print('동일한 이름이 존재합니다.')
+    print('errorFileReName_동일한 이름이 존재합니다.')
     print(error)
 
   return result
